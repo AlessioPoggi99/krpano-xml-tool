@@ -1,4 +1,5 @@
 Guida all'utilizzo:
+
     1 - Selezionare una cartella contenente un progetto krpano
     2 - Dopo aver selezionato la cartella del progetto c'e' la possibilita' di scegliere
         cosa aggiungere al file xml originale, e' possibile aggiungere:
