@@ -1,4 +1,18 @@
-Guida all'utilizzo:
+#### Guida all'installazione:
+    
+    1 - Installare python3
+    2 - Aprire una finestra di terminale e navigare nella cartella della repository
+    3 - Eseguire i seguenti comandi:
+```sh
+
+        python3 -m venv venv
+        source venv/bin/activate
+        pip3 install -r requirements.txt
+        python3 app.py
+
+```
+
+#### Guida all'utilizzo:
 
     1 - Selezionare una cartella contenente un progetto krpano
     2 - Dopo aver selezionato la cartella del progetto c'e' la possibilita' di scegliere
