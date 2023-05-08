@@ -6,7 +6,8 @@
     @Status: Production
 '''
 
-# pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" app.py
+# MAC -> pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" app.py
+# WINDOWS -> pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.ico" --add-data="assets;assets" app.py
 
 import sys, time, os, shutil
 from PyQt5.QtCore import *
