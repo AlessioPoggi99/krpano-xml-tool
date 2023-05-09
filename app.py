@@ -17,6 +17,13 @@ VERSION = '1.0.0'
 BUTTON_EMPTY_TEXT = '. . .'
 POSITIONS = ('lefttop', 'left', 'leftbottom', 'top', 'center', 'bottom', 'righttop', 'right', 'rightbottom')
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 class Window(QWidget):
     def __init__(self, parent = None):
         super(Window, self).__init__(parent)
@@ -222,13 +229,6 @@ class Window(QWidget):
                     gw.setEnabled(True)
             for cb in self.checkBoxArr:
                 cb.setEnabled(True)
-    
-    def resource_path(self, relative_path):
-        try:
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
 
     def getfile(self, widget, extension):
         fname, _ = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', extension)
@@ -317,8 +317,8 @@ class Window(QWidget):
                 except:
                     self.logTextEdit.appendPlainText('ERROR: Unable to read coordinates text file... try again.')
                 
-                shutil.copy(self.resource_path('assets/gray_circle.png'), '{}/skin/spot.png'.format(self.projectBtn.text()))
-                shutil.copy(self.resource_path('assets/red_circle.png'), '{}/skin/active-spot.png'.format(self.projectBtn.text()))
+                shutil.copy(resource_path('assets/gray_circle.png'), '{}/skin/spot.png'.format(self.projectBtn.text()))
+                shutil.copy(resource_path('assets/red_circle.png'), '{}/skin/active-spot.png'.format(self.projectBtn.text()))
                 style_tag = soup.new_tag('style', name="mapspot", scale="{}".format(self.hotspotScaleSb.value()), keep="true", url="skin/spot.png", parent="map", align="lefttop", edge="center")
                 style_tag['scale.mobile'] = "2"
                 layer_tag = soup.new_tag('layer', name="activespot", scale="{}".format(self.hotspotScaleSb.value()), url="skin/active-spot.png", keep="true", align="lefttop", zorder="2")
@@ -355,7 +355,7 @@ class Window(QWidget):
 
             # Add RADAR
             if self.radarCb.isChecked():
-                shutil.copy(self.resource_path('assets/radar.js'), '{}/plugins/radar.js'.format(self.projectBtn.text()))
+                shutil.copy(resource_path('assets/radar.js'), '{}/plugins/radar.js'.format(self.projectBtn.text()))
                 layer_tag = soup.new_tag('layer', name="radar", keep="true", url="%VIEWER%/plugins/radar.js", align="center", zorder="1", fillalpha="0.5", fillcolor="0x7F5F3F", linewidth="1.0", linecolor="0xE0E0A0", linealpha="0.5", scale="{}".format(self.radarScaleSb.value()))
                 layer_tag['scale.mobile'] = "1.5"
                 #soup.find('krpano').append(layer_tag)
@@ -382,6 +382,7 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("KrPano - XML tool")
+        self.setWindowIcon(QIcon(resource_path('assets/icon.ico')))
         self.setMinimumWidth(600)
 
         self.w = Window()
