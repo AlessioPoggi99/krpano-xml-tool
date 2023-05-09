@@ -252,7 +252,7 @@ class Window(QWidget):
         try:
             with open('{}/tour.xml'.format(self.projectBtn.text()), 'r') as f:
                 xml_data = f.read()
-            soup = BeautifulSoup(xml_data, features="lxml-xml")
+            soup = BeautifulSoup(xml_data, "lxml")
         except:
             self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.xml file...\nCheck tour.xml exists inside selected project folder.")
             return
@@ -360,10 +360,12 @@ class Window(QWidget):
                 #soup.find('krpano').append(layer_tag)
                 self.appendToKrpano(soup, layer_tag)
 
-        # Save XML
+
+        # Save XML, removing html/body/p tags due lxml parser (lxml parser is the only one working on windows)
         try:
             with open("{}/output.xml".format(self.projectBtn.text()), "w") as f:
-                f.write(soup.prettify())
+                #f.write(soup.prettify())
+                f.write(soup.find('krpano').prettify())
             self.logTextEdit.appendPlainText('New xml file has been saved as output.xml')
         except:
             self.logTextEdit.appendPlainText('ERROR: Unable to save new xml file... try again.')
