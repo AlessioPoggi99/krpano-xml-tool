@@ -32,9 +32,10 @@ R0010318,532.8588,252.2776
         python3 -m venv venv
         source venv/bin/activate
         pip3 install -r requirements.txt
-        python3 app.py
 
 ```
+    4 - Modificare il file 'venv/lib/site-packages/bs4/__init__.py', cercare la funzione 'new_tag' e sostituire
+        il parametro 'name' in 'namee', sia nella lista dei parametri della funzione, sia nel return statment
 
 
 #### Creazione eseguibile:
