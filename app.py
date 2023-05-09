@@ -246,7 +246,7 @@ class Window(QWidget):
         try:
             with open('{}/tour.xml'.format(self.projectBtn.text()), 'r') as f:
                 xml_data = f.read()
-            soup = BeautifulSoup(xml_data, 'xml')
+            soup = BeautifulSoup(xml_data, features="lxml-xml")
         except:
             self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.xml file...\nCheck tour.xml exists inside selected project folder.")
             return
