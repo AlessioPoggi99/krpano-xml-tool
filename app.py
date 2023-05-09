@@ -234,6 +234,12 @@ class Window(QWidget):
         if fname:
             widget.setText(fname)
 
+    def appendToKrpano(self, soup, tag):
+        try:
+            soup.find('krpano').append(tag)
+        except:
+            self.logTextEdit.appendPlainText("ERROR: It seems that file tour.xml doen't contain 'krpano' tag")
+
     def generateXML(self):
         self.logTextEdit.clear()
 
@@ -263,7 +269,8 @@ class Window(QWidget):
                 return
             action_tag = soup.new_tag('action', name="startup", autorun="onstart")
             action_tag.string = 'loadscene({}, null, MERGE);'.format(startup_scene_name if 'scene_' in startup_scene_name else 'scene_{}'.format(startup_scene_name))
-            soup.find('krpano').append(action_tag)
+            #soup.find('krpano').append(action_tag)
+            self.appendToKrpano(soup, action_tag)
         
         # Add LOGO
         if self.logoCb.isChecked():
@@ -273,7 +280,8 @@ class Window(QWidget):
                 return
             shutil.copy(logo_name, '{}/skin/'.format(self.projectBtn.text()))
             layer_tag = soup.new_tag('layer', align="{}".format(self.logoPositionCb.currentText()), capture="false", handcursor="false", keep="true", name="logo", scale="{}".format(self.logoScaleSb.value()), scalechildren="true", url="skin/{}".format(logo_name.rsplit('/', 1)[-1]), y="10", x="10")
-            soup.find('krpano').append(layer_tag)
+            #soup.find('krpano').append(layer_tag)
+            self.appendToKrpano(soup, layer_tag)
 
         # Add MAP
         if self.mapCb.isChecked():
@@ -288,9 +296,13 @@ class Window(QWidget):
             action_tag1.string = 'set(layer[map].onclick, closemap(); );layer[map].changealign(center,center);set(bigscale,{});if(layer[map].sourcewidth GT stagewidth, bigscale = stagewidth / layer[map].sourcewidth; );tween(layer[map].x, 0);tween(layer[map].y, 0);tween(layer[map].scale, get(bigscale));'.format(self.openMapScaleSb.value())
             action_tag2 = soup.new_tag('action', name='closemap')
             action_tag2.string = 'set(layer[map].onclick, openmap(); );layer[map].changealign({},{});tween(layer[map].x, 0);tween(layer[map].y, 0);tween(layer[map].scale, {});'.format(self.mapPositionCb.currentText(), self.mapPositionCb.currentText(), self.closeMapScaleSb.value())
-            soup.find('krpano').append(layer_tag)
-            soup.find('krpano').append(action_tag1)
-            soup.find('krpano').append(action_tag2)
+            #soup.find('krpano').append(layer_tag)
+            #soup.find('krpano').append(action_tag1)
+            #soup.find('krpano').append(action_tag2)
+            self.appendToKrpano(soup, layer_tag)
+            self.appendToKrpano(soup, action_tag1)
+            self.appendToKrpano(soup, action_tag2)
+
 
             # Add HOTSPOTS
             if self.hotspotCb.isChecked():
@@ -311,22 +323,30 @@ class Window(QWidget):
                 layer_tag = soup.new_tag('layer', name="activespot", scale="{}".format(self.hotspotScaleSb.value()), url="skin/active-spot.png", keep="true", align="lefttop", zorder="2")
                 action_tag = soup.new_tag('action', name="mapspot_loadscene")
                 action_tag.string = "if(layer[map].scale GT 0.3,set(layer[map].enabled, false);tween(layer[map].alpha, 0.0, 0.3, default,loadscene(%1, null, MERGE, BLEND(1));set(layer[map].onclick, openmap(););layer[map].changealign({},{});set(layer[map].x, 0);set(layer[map].y, 0);set(layer[map].scale, {});set(events[sceneload].onloadcomplete,delayedcall(1,tween(layer[map].alpha, 1.0, 0.5, default, set(layer[map].enabled, true); ););););,loadscene(%1, null, MERGE, BLEND(1)););".format(self.mapPositionCb.currentText(), self.mapPositionCb.currentText(), self.closeMapScaleSb.value())
-                soup.find('krpano').append(style_tag)
-                soup.find('krpano').append(layer_tag)
-                soup.find('krpano').append(action_tag)
+                #soup.find('krpano').append(style_tag)
+                #soup.find('krpano').append(layer_tag)
+                #soup.find('krpano').append(action_tag)
+                self.appendToKrpano(soup, style_tag)
+                self.appendToKrpano(soup, layer_tag)
+                self.appendToKrpano(soup, action_tag)
+
 
                 counter = 1
                 for coordinate in coordinates_list:
                     scene_name = 'scene_{}'.format(coordinate[0])
                     layer_tag = soup.new_tag('layer', name='spot{}'.format(counter), style='mapspot', x='{}'.format(coordinate[1]), y='{}'.format(coordinate[2]), zorder='1', onclick='mapspot_loadscene({});'.format(scene_name))
-                    soup.find('krpano').append(layer_tag)
-                    for tag in soup.find_all('scene', {'name': scene_name}):
-                        tag['onstart'] = 'updateradar();'
-                        hlookat = tag.find('view').get('hlookat')
-                        radar_angle = round(-float(hlookat) - 90.0, 3)
-                        action_tag = soup.new_tag('action', name='updateradar')
-                        action_tag.string = 'set(layer[radar].parent, spot{});\nset(layer[activespot].parent, spot{});\nset(plugin[radar].heading, {});'.format(counter, counter, radar_angle)
-                        tag.append(action_tag)
+                    #soup.find('krpano').append(layer_tag)
+                    self.appendToKrpano(soup, layer_tag)
+                    try:
+                        for tag in soup.find_all('scene', {'name': scene_name}):
+                            tag['onstart'] = 'updateradar();'
+                            hlookat = tag.find('view').get('hlookat')
+                            radar_angle = round(-float(hlookat) - 90.0, 3)
+                            action_tag = soup.new_tag('action', name='updateradar')
+                            action_tag.string = 'set(layer[radar].parent, spot{});\nset(layer[activespot].parent, spot{});\nset(plugin[radar].heading, {});'.format(counter, counter, radar_angle)
+                            tag.append(action_tag)
+                    except:
+                        self.logTextEdit.appendPlainText("ERROR: It seems that tour.xml doesn't contain scenes or it does not contain {} scene".format(scene_name))
                     counter += 1
             
                 self.logTextEdit.appendPlainText('Succesfully added {} hotspots on the map'.format(counter-1))
@@ -337,7 +357,8 @@ class Window(QWidget):
                 shutil.copy(self.resource_path('assets/radar.js'), '{}/plugins/radar.js'.format(self.projectBtn.text()))
                 layer_tag = soup.new_tag('layer', name="radar", keep="true", url="%VIEWER%/plugins/radar.js", align="center", zorder="1", fillalpha="0.5", fillcolor="0x7F5F3F", linewidth="1.0", linecolor="0xE0E0A0", linealpha="0.5", scale="{}".format(self.radarScaleSb.value()))
                 layer_tag['scale.mobile'] = "1.5"
-                soup.find('krpano').append(layer_tag)
+                #soup.find('krpano').append(layer_tag)
+                self.appendToKrpano(soup, layer_tag)
 
         # Save XML
         try:
