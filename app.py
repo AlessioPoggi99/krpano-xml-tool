@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import *
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+VERSION = '1.0.0'
 BUTTON_EMPTY_TEXT = '. . .'
 POSITIONS = ('lefttop', 'left', 'leftbottom', 'top', 'center', 'bottom', 'righttop', 'right', 'rightbottom')
 
@@ -179,7 +180,7 @@ class Window(QWidget):
         self.generateWidgets = [self.generateBtn, self.logTextEdit]
 
         self.copyrightLayout = QHBoxLayout()
-        self.copyrightLabel = QLabel("2023 v1.0.0 - Alessio Poggi")
+        self.copyrightLabel = QLabel("2023 v{} - Alessio Poggi".format(VERSION))
         self.copyrightLabel.setStyleSheet(
             "margin-top: 15px; color: gray; font-size: 10px;"
         )
