@@ -6,7 +6,7 @@
     @Status: Production
 '''
 
-# MAC -> pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" app.py
+# MAC -> pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" --onefile app.py
 # WINDOWS -> pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.ico" --add-data="assets;assets" --onefile app.py
 
 import sys, time, os, shutil
@@ -20,19 +20,9 @@ BUTTON_EMPTY_TEXT = '. . .'
 POSITIONS = ('lefttop', 'left', 'leftbottom', 'top', 'center', 'bottom', 'righttop', 'right', 'rightbottom')
 
 class Window(QWidget):
-    def resource_path(self, relative_path):
-        try:
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
-
     def __init__(self, parent = None):
         super(Window, self).__init__(parent)
 
-        # Window
-        self.setWindowTitle("KrPano - XML tool")
-        self.setMinimumWidth(600)
         layout = QVBoxLayout()
 
         # XML selector
@@ -192,7 +182,7 @@ class Window(QWidget):
         self.generateWidgets = [self.generateBtn, self.logTextEdit]
 
         self.copyrightLayout = QHBoxLayout()
-        self.copyrightLabel = QLabel("v1.0.0 © 2023 Copyright: Alessio Poggi")
+        self.copyrightLabel = QLabel("2023 v1.0.0 - Alessio Poggi")
         self.copyrightLabel.setStyleSheet(
             "margin-top: 15px; color: gray; font-size: 10px;"
         )
@@ -225,12 +215,6 @@ class Window(QWidget):
         for rw in self.radarWidgets:
             rw.setEnabled(False)
         self.startSceneName.setEnabled(False)
-
-    def mousePressEvent(self, event):
-        focused_widget = QApplication.focusWidget()
-        if focused_widget:
-            focused_widget.clearFocus()
-        QMainWindow.mousePressEvent(self, event)
       
     def getdir(self):
         dname = QFileDialog.getExistingDirectory(self, 'Select folder', 'c:\\')
@@ -240,6 +224,13 @@ class Window(QWidget):
                     gw.setEnabled(True)
             for cb in self.checkBoxArr:
                 cb.setEnabled(True)
+    
+    def resource_path(self, relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 
     def getfile(self, widget, extension):
         fname, _ = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', extension)
@@ -366,9 +357,24 @@ class Window(QWidget):
         elapsed_time = et - st # *1000 to get milliseconds or /60 to geet minutes
         self.logTextEdit.appendPlainText('Execution time: {} seconds'.format(round(elapsed_time, 2)))
 
+class MainWindow(QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle("KrPano - XML tool")
+        self.setMinimumWidth(600)
+
+        self.w = Window()
+        self.setCentralWidget(self.w)
+
+    def mousePressEvent(self, event):
+        focused_widget = QApplication.focusWidget()
+        if focused_widget:
+            focused_widget.clearFocus()
+        QMainWindow.mousePressEvent(self, event)
+
 def main():
     app = QApplication(sys.argv)
-    ex = Window()
+    ex = MainWindow() #Window()
     ex.show()
     sys.exit(app.exec_())
 
