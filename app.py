@@ -400,6 +400,15 @@ class Window(QWidget):
         except:
             self.logTextEdit.appendPlainText('ERROR: Unable to save new xml file... try again.')
             return
+        
+        # Save HTML
+        try:
+            shutil.move("{}/tour.html".format(self.projectBtn.text()), "{}/tour-backup.html".format(self.projectBtn.text()))
+            with open("{}/tour.html".format(self.projectBtn.text()), "w") as f:
+                f.write(soup_html.prettify())
+        except:
+            self.logTextEdit.appendPlainText('ERROR: Unable to save new html file...')
+            return
 
         # Get the end time
         et = time.time()
