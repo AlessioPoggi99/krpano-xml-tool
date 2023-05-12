@@ -1,7 +1,7 @@
 '''
     @Author: Alessio Poggi
     @Date: 04/05/2023
-    @Version: 1.0.0
+    @Version: 1.1.0
     @Email: alessio_poggi@hotmail.it
     @Status: Production
 '''
@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 BUTTON_EMPTY_TEXT = '. . .'
 POSITIONS = ('lefttop', 'left', 'leftbottom', 'top', 'center', 'bottom', 'righttop', 'right', 'rightbottom')
 
@@ -241,6 +241,15 @@ class Window(QWidget):
         except:
             self.logTextEdit.appendPlainText("ERROR: It seems that file tour.xml doen't contain 'krpano' tag")
 
+    def editScriptHTML(self, soup_html, script_str):
+        try:
+            soup_html.find("div", {"id": "pano"}).script.extract()
+            script_tag = soup_html.new_tag('script')
+            script_tag.string = script_str
+            soup_html.find("div", {"id": "pano"}).append(script_tag)
+        except:
+            self.logTextEdit.appendPlainText("ERROR: Unable to edit 'tour.html' file...")
+
     def generateXML(self):
         self.logTextEdit.clear()
 
@@ -258,6 +267,14 @@ class Window(QWidget):
             self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.xml file...\nCheck tour.xml exists inside selected project folder.")
             return
         
+        try:
+            with open('{}/tour.html'.format(self.projectBtn.text()), 'r') as f:
+                html_data = f.read()
+            soup_html = BeautifulSoup(html_data, "html.parser")
+            self.editScriptHTML(soup_html, 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"')
+        except:
+            self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.html file...")
+        
         # Create needed directories
         os.makedirs(os.path.dirname('{}/skin/'.format(self.projectBtn.text())), exist_ok=True)
         os.makedirs(os.path.dirname('{}/plugins/'.format(self.projectBtn.text())), exist_ok=True)
@@ -268,11 +285,23 @@ class Window(QWidget):
             if startup_scene_name == '':
                 self.logTextEdit.appendPlainText("ERROR: Set a startup scene name or deselect the checkbox and try again...")
                 return
+
+            script_str = 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat", vars:{startscene:"' 
+            script_str += startup_scene_name if 'scene_' in startup_scene_name else 'scene_{}'.format(startup_scene_name) 
+            script_str += '"}});'
+            self.editScriptHTML(soup_html, script_str)
+
+            '''
+            startup_scene_name = self.startSceneName.text()
+            if startup_scene_name == '':
+                self.logTextEdit.appendPlainText("ERROR: Set a startup scene name or deselect the checkbox and try again...")
+                return
             action_tag = soup.new_tag('action', name="startup", autorun="onstart")
             action_tag.string = 'loadscene({}, null, MERGE);'.format(startup_scene_name if 'scene_' in startup_scene_name else 'scene_{}'.format(startup_scene_name))
             #soup.find('krpano').append(action_tag)
             self.appendToKrpano(soup, action_tag)
-        
+            '''
+
         # Add LOGO
         if self.logoCb.isChecked():
             logo_name = self.logoImageBtn.text()
