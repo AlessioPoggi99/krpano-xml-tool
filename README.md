@@ -1,6 +1,6 @@
 # krpano-xml-tool
 
-Questo tool automatizza alcune modifiche applicabili al file xml ottenuto come output dal tool krpano. Dopo avere selezionato la cartella del progetto krpano offre la possibilita' di:
+Questo tool automatizza alcune modifiche applicabili al file xml ottenuto come output da krpano. Dopo avere selezionato la cartella del progetto krpano offre la possibilita' di:
 
     * scelta scena iniziale tramite il nome (es: R0010318)
     * inserimento di un logo con relativa scelta della posizione sullo schermo e relativa scala di ingrandimento
@@ -42,11 +42,11 @@ R0010318,532.8588,252.2776
 
 Per dispositivi UNIX:
 ```sh
-    pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" --onefile app.py
+pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.icns" --add-data="assets:assets" --onefile app.py
 ```
 Per dispositivi WINDOWS:
 ```sh
-    pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.ico" --add-data="assets;assets" --onefile app.py
+pyinstaller --windowed --name="KrPano - XML tool" --icon="assets/icon.ico" --add-data="assets;assets" --onefile app.py
 ```
 
 
@@ -65,9 +65,11 @@ Per dispositivi WINDOWS:
     3 - Per molti elementi e' possibile anche scegliere una scala e la posizione sullo schermo
     4 - Premendo il tasto di generazione dell'xml il programma copierà nelle cartelle del tuo
         progetto krpano tutti i file necessari al funzionamento di questo tool, inoltre creera'
-        un nuovo file denominato 'output.xml'. Per poterlo utilizzare devi procedere cosi':
-            Apri il file 'tour.html' con un editor di testo e modificare la seguente stringa:
-                embedpano({xml:"tour.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"});
-            in:
-                embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"});
-            In sostanza bisogna cambiare "tour.xml" in "output.xml".
+        un nuovo file denominato 'output.xml'. Infine modificherà il file 'tour.html' facendo si che vada a leggere direttamente il file 'output.xml'. N.B Se stai usando la v1.0.0 devi modificare manualmente il file 'tour.html' e sostituire la stringa tour.xml in output.xml
+        
+     
+#### Screenshots:
+
+![Alt text](./screenshoots/screen-macos.png?raw=true "Macos screenshot")
+
+![Alt text](./screenshoots/screen-win.jpeg?raw=true "Windows screenshot")

@@ -1,7 +1,7 @@
 '''
     @Author: Alessio Poggi
     @Date: 04/05/2023
-    @Version: 1.1.0
+    @Version: 1.1.1
     @Email: alessio_poggi@hotmail.it
     @Status: Production
 '''
@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-VERSION = '1.1.0'
+VERSION = '1.1.1'
 BUTTON_EMPTY_TEXT = '. . .'
 POSITIONS = ('lefttop', 'left', 'leftbottom', 'top', 'center', 'bottom', 'righttop', 'right', 'rightbottom')
 
@@ -239,7 +239,7 @@ class Window(QWidget):
         try:
             soup.find('krpano').append(tag)
         except:
-            self.logTextEdit.appendPlainText("ERROR: It seems that file tour.xml doen't contain 'krpano' tag")
+            self.writeToTextEdit("ERROR: It seems that file tour.xml doen't contain 'krpano' tag", "#ff0000")
 
     def editScriptHTML(self, soup_html, script_str):
         try:
@@ -248,12 +248,22 @@ class Window(QWidget):
             script_tag.string = script_str
             soup_html.find("div", {"id": "pano"}).append(script_tag)
         except:
-            self.logTextEdit.appendPlainText("ERROR: Unable to edit 'tour.html' file...")
+            self.writeToTextEdit("ERROR: Unable to edit 'tour.html' file...", "#ff0000")
+
+    def writeToTextEdit(self, text, hex_color):
+        if hex_color:
+            colored_text = "<span style=\" font-size:10pt; color:{};\" >".format(hex_color)
+            colored_text += text
+            colored_text += "</span>"
+            self.logTextEdit.appendHtml(colored_text)
+            pass
+        else:
+            self.logTextEdit.appendPlainText(text)
 
     def generateXML(self):
         self.logTextEdit.clear()
 
-        self.logTextEdit.appendPlainText("Running - {}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")))
+        self.writeToTextEdit("Running - {}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")), None)
         
         # Get the start time
         st = time.time()
@@ -264,7 +274,7 @@ class Window(QWidget):
                 xml_data = f.read()
             soup = BeautifulSoup(xml_data, "lxml")
         except:
-            self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.xml file...\nCheck tour.xml exists inside selected project folder.")
+            self.writeToTextEdit("ERROR: Unable to open or read tour.xml file...\nCheck tour.xml exists inside selected project folder.", '#ff0000')
             return
         
         try:
@@ -273,7 +283,7 @@ class Window(QWidget):
             soup_html = BeautifulSoup(html_data, "html.parser")
             self.editScriptHTML(soup_html, 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"')
         except:
-            self.logTextEdit.appendPlainText("ERROR: Unable to open or read tour.html file...")
+            self.writeToTextEdit("ERROR: Unable to open or read tour.html file...", '#ff0000')
         
         # Create needed directories
         os.makedirs(os.path.dirname('{}/skin/'.format(self.projectBtn.text())), exist_ok=True)
@@ -283,7 +293,7 @@ class Window(QWidget):
         if self.startSceneCb.isChecked():
             startup_scene_name = self.startSceneName.text()
             if startup_scene_name == '':
-                self.logTextEdit.appendPlainText("ERROR: Set a startup scene name or deselect the checkbox and try again...")
+                self.writeToTextEdit("ERROR: Set a startup scene name or deselect the checkbox and try again...", '#ff0000')
                 return
 
             script_str = 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat", vars:{startscene:"' 
@@ -294,7 +304,7 @@ class Window(QWidget):
             '''
             startup_scene_name = self.startSceneName.text()
             if startup_scene_name == '':
-                self.logTextEdit.appendPlainText("ERROR: Set a startup scene name or deselect the checkbox and try again...")
+                self.writeToTextEdit("ERROR: Set a startup scene name or deselect the checkbox and try again...", '#ff0000')
                 return
             action_tag = soup.new_tag('action', name="startup", autorun="onstart")
             action_tag.string = 'loadscene({}, null, MERGE);'.format(startup_scene_name if 'scene_' in startup_scene_name else 'scene_{}'.format(startup_scene_name))
@@ -306,7 +316,7 @@ class Window(QWidget):
         if self.logoCb.isChecked():
             logo_name = self.logoImageBtn.text()
             if logo_name == BUTTON_EMPTY_TEXT:
-                self.logTextEdit.appendPlainText("ERROR: Select a logo image or deselect 'add logo' checkbox and try again...")
+                self.writeToTextEdit("ERROR: Select a logo image or deselect 'add logo' checkbox and try again...", '#ff0000')
                 return
             shutil.copy(logo_name, '{}/skin/'.format(self.projectBtn.text()))
             layer_tag = soup.new_tag('layer', align="{}".format(self.logoPositionCb.currentText()), capture="false", handcursor="false", keep="true", name="logo", scale="{}".format(self.logoScaleSb.value()), scalechildren="true", url="skin/{}".format(logo_name.rsplit('/', 1)[-1]), y="10", x="10")
@@ -317,7 +327,7 @@ class Window(QWidget):
         if self.mapCb.isChecked():
             map_name = self.mapImageBtn.text()
             if map_name == BUTTON_EMPTY_TEXT:
-                self.logTextEdit.appendPlainText("ERROR: Select a map image or deselect 'add map' checkbox and try again...")
+                self.writeToTextEdit("ERROR: Select a map image or deselect 'add map' checkbox and try again...", '#ff0000')
                 return
 
             shutil.copy(map_name, '{}/skin/'.format(self.projectBtn.text()))
@@ -337,14 +347,14 @@ class Window(QWidget):
             # Add HOTSPOTS
             if self.hotspotCb.isChecked():
                 if self.coordinatesBtn.text() == BUTTON_EMPTY_TEXT:
-                    self.logTextEdit.appendPlainText("ERROR: Select coordinates text file or deselect 'add hotspots' checkbox and try again...")
+                    self.writeToTextEdit("ERROR: Select coordinates text file or deselect 'add hotspots' checkbox and try again...", '#ff0000')
                     return
 
                 try:
                     with open(self.coordinatesBtn.text(), 'r') as f:
                         coordinates_list = [line.strip().split(',') for line in f]
                 except:
-                    self.logTextEdit.appendPlainText('ERROR: Unable to read coordinates text file... try again.')
+                    self.writeToTextEdit('ERROR: Unable to read coordinates text file... try again.', '#ff0000')
                 
                 shutil.copy(resource_path('assets/gray_circle.png'), '{}/skin/spot.png'.format(self.projectBtn.text()))
                 shutil.copy(resource_path('assets/red_circle.png'), '{}/skin/active-spot.png'.format(self.projectBtn.text()))
@@ -376,11 +386,11 @@ class Window(QWidget):
                             action_tag.string = 'set(layer[radar].parent, spot{});\nset(layer[activespot].parent, spot{});\nset(plugin[radar].heading, {});'.format(counter, counter, radar_angle)
                             tag.append(action_tag)
                     except:
-                        self.logTextEdit.appendPlainText("ERROR: It seems that tour.xml doesn't contain scenes or it does not contain {} scene".format(scene_name))
+                        self.writeToTextEdit("ERROR: It seems that tour.xml doesn't contain scenes or it does not contain {} scene".format(scene_name), '#ff0000')
                     counter += 1
             
-                self.logTextEdit.appendPlainText('Succesfully added {} hotspots on the map'.format(counter-1))
-                self.logTextEdit.appendPlainText("If hotspots don't work check your coordinate text file formatting [SCENE_NAME,X_COORD,Y_COORD]")
+                self.writeToTextEdit('Succesfully added {} hotspots on the map'.format(counter-1), '#00ff00')
+                self.writeToTextEdit("If hotspots don't work check your coordinate text file formatting", None)
 
             # Add RADAR
             if self.radarCb.isChecked():
@@ -396,9 +406,9 @@ class Window(QWidget):
             with open("{}/output.xml".format(self.projectBtn.text()), "w") as f:
                 #f.write(soup.prettify())
                 f.write(soup.find('krpano').prettify())
-            self.logTextEdit.appendPlainText('New xml file has been saved as output.xml')
+            self.writeToTextEdit('New xml file has been saved as output.xml', '#00ff00')
         except:
-            self.logTextEdit.appendPlainText('ERROR: Unable to save new xml file... try again.')
+            self.writeToTextEdit('ERROR: Unable to save new xml file... try again.', '#ff0000')
             return
         
         # Save HTML
@@ -407,14 +417,14 @@ class Window(QWidget):
             with open("{}/tour.html".format(self.projectBtn.text()), "w") as f:
                 f.write(soup_html.prettify())
         except:
-            self.logTextEdit.appendPlainText('ERROR: Unable to save new html file...')
+            self.writeToTextEdit('ERROR: Unable to save new html file...', '#ff0000')
             return
 
         # Get the end time
         et = time.time()
         # get the execution time
         elapsed_time = et - st # *1000 to get milliseconds or /60 to geet minutes
-        self.logTextEdit.appendPlainText('Execution time: {} seconds'.format(round(elapsed_time, 2)))
+        self.writeToTextEdit('Execution time: {} seconds'.format(round(elapsed_time, 2)), None)
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
