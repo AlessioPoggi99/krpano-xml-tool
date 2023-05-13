@@ -281,7 +281,7 @@ class Window(QWidget):
             with open('{}/tour.html'.format(self.projectBtn.text()), 'r') as f:
                 html_data = f.read()
             soup_html = BeautifulSoup(html_data, "html.parser")
-            self.editScriptHTML(soup_html, 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"')
+            self.editScriptHTML(soup_html, 'embedpano({xml:"output.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:"startscene,startlookat"});')
         except:
             self.writeToTextEdit("ERROR: Unable to open or read tour.html file...", '#ff0000')
         
